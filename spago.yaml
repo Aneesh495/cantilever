@@ -1,0 +1,29 @@
+package:
+  name: cantilever
+  dependencies:
+    - console
+    - effect
+    - prelude
+    - arrays
+    - strings
+    - maybe
+    - either
+    - tuples
+    - foldable-traversable
+    - bifunctors
+    - control
+    - ordered-collections
+    - lists
+    - integers
+    - exceptions
+    - aff
+    - node-buffer
+    - node-fs
+    - node-process
+  test:
+    main: Test.Main
+    dependencies: []
+workspace:
+  packageSet:
+    registry: 82.2.0
+  extraPackages: {}

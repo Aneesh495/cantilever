@@ -1,0 +1,25 @@
+# PureScript build outputs
+output/
+.spago/
+dist/
+spago.lock
+
+# Node dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Native build artifacts
+native/c/*.o
+native/c/*.so
+native/c/*.dylib
+native/c/bin/
+
+# Temporary files and logs
+*.log
+.DS_Store
+.cache/
+data/ca/*.key
+data/ca/*.secret
+data/audit/*.db

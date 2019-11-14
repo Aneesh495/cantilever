@@ -1,0 +1,35 @@
+{
+  "name": "cantilever",
+  "version": "1.0.0",
+  "description": "An automated Public Key Infrastructure (PKI) and ACME v2 certificate authority in PureScript.",
+  "main": "output/Cantilever.Main/index.js",
+  "bin": {
+    "cantilever": "./bin/cantilever.js"
+  },
+  "scripts": {
+    "build": "spago build",
+    "test": "spago test",
+    "bundle": "spago bundle --module Cantilever.Main --outfile dist/cantilever.js --platform node",
+    "start": "node bin/cantilever.js server start",
+    "format": "purs-tidy format-in-place 'src/**/*.purs' 'test/**/*.purs'",
+    "clean": "rm -rf output .spago dist"
+  },
+  "keywords": [
+    "certificate-authority",
+    "acme-protocol",
+    "pki",
+    "purescript",
+    "x509",
+    "rfc5280",
+    "rfc8555",
+    "ocsp",
+    "merkle-tree"
+  ],
+  "author": "Aneesh Krishna",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "devDependencies": {
+    "purescript": "0.15.17",
+    "spago": "1.0.5"
+  }
+}
