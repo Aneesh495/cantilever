@@ -41,41 +41,49 @@ export const generateEd25519KeyPairImpl = function() {
   };
 };
 
-export const jwkThumbprintSha256Impl = function(just, nothing, spkiDerBytes) {
-  try {
-    const keyObject = crypto.createPublicKey({
-      key: Buffer.from(spkiDerBytes),
-      format: "der",
-      type: "spki"
-    });
-    const jwk = keyObject.export({ format: "jwk" });
-    let canonical = "";
-    if (jwk.kty === "RSA") {
-      canonical = JSON.stringify({ e: jwk.e, kty: "RSA", n: jwk.n });
-    } else if (jwk.kty === "EC") {
-      canonical = JSON.stringify({ crv: jwk.crv, kty: "EC", x: jwk.x, y: jwk.y });
-    } else if (jwk.kty === "OKP") {
-      canonical = JSON.stringify({ crv: jwk.crv, kty: "OKP", x: jwk.x });
-    } else {
-      return nothing;
-    }
-    const hash = crypto.createHash("sha256").update(canonical, "utf8").digest();
-    return just(Array.from(hash));
-  } catch (e) {
-    return nothing;
-  }
+export const jwkThumbprintSha256Impl = function(just) {
+  return function(nothing) {
+    return function(spkiDerBytes) {
+      try {
+        const keyObject = crypto.createPublicKey({
+          key: Buffer.from(spkiDerBytes),
+          format: "der",
+          type: "spki"
+        });
+        const jwk = keyObject.export({ format: "jwk" });
+        let canonical = "";
+        if (jwk.kty === "RSA") {
+          canonical = JSON.stringify({ e: jwk.e, kty: "RSA", n: jwk.n });
+        } else if (jwk.kty === "EC") {
+          canonical = JSON.stringify({ crv: jwk.crv, kty: "EC", x: jwk.x, y: jwk.y });
+        } else if (jwk.kty === "OKP") {
+          canonical = JSON.stringify({ crv: jwk.crv, kty: "OKP", x: jwk.x });
+        } else {
+          return nothing;
+        }
+        const hash = crypto.createHash("sha256").update(canonical, "utf8").digest();
+        return just(Array.from(hash));
+      } catch (e) {
+        return nothing;
+      }
+    };
+  };
 };
 
-export const exportJwkImpl = function(just, nothing, spkiDerBytes) {
-  try {
-    const keyObject = crypto.createPublicKey({
-      key: Buffer.from(spkiDerBytes),
-      format: "der",
-      type: "spki"
-    });
-    const jwk = keyObject.export({ format: "jwk" });
-    return just(JSON.stringify(jwk));
-  } catch (e) {
-    return nothing;
-  }
+export const exportJwkImpl = function(just) {
+  return function(nothing) {
+    return function(spkiDerBytes) {
+      try {
+        const keyObject = crypto.createPublicKey({
+          key: Buffer.from(spkiDerBytes),
+          format: "der",
+          type: "spki"
+        });
+        const jwk = keyObject.export({ format: "jwk" });
+        return just(JSON.stringify(jwk));
+      } catch (e) {
+        return nothing;
+      }
+    };
+  };
 };

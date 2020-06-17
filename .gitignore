@@ -3,6 +3,7 @@ output/
 .spago/
 dist/
 spago.lock
+.purs-repl
 
 # Node dependencies
 node_modules/

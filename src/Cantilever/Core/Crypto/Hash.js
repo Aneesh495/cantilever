@@ -32,24 +32,30 @@ export const md5Impl = function(bytes) {
   return Array.from(hash);
 };
 
-export const hmacSha256Impl = function(keyBytes, dataBytes) {
-  const key = Buffer.from(keyBytes);
-  const data = Buffer.from(dataBytes);
-  const mac = crypto.createHmac("sha256", key).update(data).digest();
-  return Array.from(mac);
+export const hmacSha256Impl = function(keyBytes) {
+  return function(dataBytes) {
+    const key = Buffer.from(keyBytes);
+    const data = Buffer.from(dataBytes);
+    const mac = crypto.createHmac("sha256", key).update(data).digest();
+    return Array.from(mac);
+  };
 };
 
 export const toHexImpl = function(bytes) {
   return Buffer.from(bytes).toString("hex");
 };
 
-export const fromHexImpl = function(just, nothing, hex) {
-  try {
-    const cleanHex = hex.trim();
-    if (cleanHex.length % 2 !== 0) return nothing;
-    const buf = Buffer.from(cleanHex, "hex");
-    return just(Array.from(buf));
-  } catch (e) {
-    return nothing;
-  }
+export const fromHexImpl = function(just) {
+  return function(nothing) {
+    return function(hex) {
+      try {
+        const cleanHex = hex.trim();
+        if (cleanHex.length % 2 !== 0) return nothing;
+        const buf = Buffer.from(cleanHex, "hex");
+        return just(Array.from(buf));
+      } catch (e) {
+        return nothing;
+      }
+    };
+  };
 };

@@ -2,6 +2,7 @@
   "name": "cantilever",
   "version": "1.0.0",
   "description": "An automated Public Key Infrastructure (PKI) and ACME v2 certificate authority in PureScript.",
+  "type": "module",
   "main": "output/Cantilever.Main/index.js",
   "bin": {
     "cantilever": "./bin/cantilever.js"

@@ -29,6 +29,7 @@ import Cantilever.Core.Revocation.Store (emptyRevocationStore, generateCRLFromSt
 import Cantilever.Core.X509.CSR (getCsrSANs, parseCSRPEM, verifyCSRSignature)
 import Cantilever.Core.X509.Name (DistinguishedName(..), commonName, country, formatDN, organization, parseDN)
 import Cantilever.Core.X509.Parser (parseCertificatePEM)
+import Cantilever.Core.X509.Validity (nowEpochSeconds)
 import Cantilever.Server.HTTP (startHttpServer)
 import Cantilever.Server.Router (dispatchRequest, initServerState)
 import Data.Array (foldl, length, mapMaybe, range)
@@ -109,7 +110,8 @@ executeCommand = case _ of
     case parseCertificatePEM rootPem, parseCertificatePEM leafPem of
       Just rootCert, Just leafCert -> do
         untrustedPool <- loadUntrustedCerts untrusted
-        let cfg = defaultValidationConfig [rootCert] 1735689600
+        nowSec <- nowEpochSeconds
+        let cfg = defaultValidationConfig [rootCert] nowSec
             result = validateCertificate cfg untrustedPool leafCert
         case result of
           ValidationSuccess { validatedChain, auditLog } -> do

@@ -26,8 +26,6 @@ export function fileExistsSync(filePath) {
 }
 
 export function getHighResTimeMs() {
-  return function() {
-    const hr = process.hrtime();
-    return hr[0] * 1000 + hr[1] / 1000000;
-  };
+  const hr = process.hrtime();
+  return hr[0] * 1000 + hr[1] / 1000000;
 }

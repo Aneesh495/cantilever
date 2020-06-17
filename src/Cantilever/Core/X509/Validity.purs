@@ -1,6 +1,7 @@
 module Cantilever.Core.X509.Validity
   ( Validity
   , TimeValue
+  , defaultEpochBase
   , makeValidity
   , validityFromSeconds
   , nowEpochSeconds
@@ -64,11 +65,15 @@ validityFromSeconds startSec endSec =
   , notAfter: formatTimeValue endSec
   }
 
--- | Creates a Validity window with default duration in days starting from now.
+-- | Baseline epoch for certificate validity generation (2025-01-01T00:00:00Z).
+defaultEpochBase :: Int
+defaultEpochBase = 1735689600
+
+-- | Creates a Validity window with default duration in days starting from baseline epoch or custom offset.
 makeValidity :: Int -> Int -> Validity
 makeValidity startOffsetSec durationDays =
   let
-    start = startOffsetSec
+    start = if startOffsetSec == 0 then defaultEpochBase else startOffsetSec
     end = start + durationDays * 86400
   in
     validityFromSeconds start end

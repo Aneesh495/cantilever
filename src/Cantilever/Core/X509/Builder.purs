@@ -9,7 +9,7 @@ module Cantilever.Core.X509.Builder
 
 import Prelude
 
-import Cantilever.Core.ASN1.DER (encodeDER)
+import Cantilever.Core.ASN1.DER (decodeDER, encodeDER)
 import Cantilever.Core.ASN1.OID
   ( OID(..)
   , ekuServerAuth
@@ -21,14 +21,7 @@ import Cantilever.Core.ASN1.OID
   , extSubjectKeyIdentifier
   , sha256WithRSAEncryption
   )
-import Cantilever.Core.ASN1.Types
-  ( ASN1(..)
-  , ASN1Tag(..)
-  , ASN1Value(..)
-  , TagClass(..)
-  , TagForm(..)
-  , makeUniversalTag
-  )
+import Cantilever.Core.ASN1.Types (ASN1(..), ASN1Value(..), TagForm(..), makeContextTag, makeUniversalTag)
 import Cantilever.Core.Crypto.BigInt (BigInt, fromInt)
 import Cantilever.Core.Crypto.Hash (sha256)
 import Cantilever.Core.Crypto.Key (KeyPair, PrivateKey, PublicKey)
@@ -51,8 +44,8 @@ buildTBSCertificateAst tbs =
     seqTag = makeUniversalTag 16 Constructed
 
     -- Version 3 is encoded as [0] EXPLICIT INTEGER 2
-    versionAst = ASN1 (ASN1Tag { tagClass: ContextSpecific, tagForm: Constructed, tagNumber: 0 })
-      (ASN1Sequence [ ASN1 (makeUniversalTag 2 Primitive) (ASN1Integer (fromInt tbs.version)) ])
+    versionAst = ASN1 (makeContextTag 0 Constructed)
+      (ASN1ContextExplicit 0 (ASN1 (makeUniversalTag 2 Primitive) (ASN1Integer (fromInt tbs.version))))
 
     serialAst = ASN1 (makeUniversalTag 2 Primitive) (ASN1Integer tbs.serialNumber)
     sigAlgAst = encodeAlgorithmIdAst tbs.signatureAlgorithm
@@ -63,8 +56,8 @@ buildTBSCertificateAst tbs =
 
     extSeqAst = ASN1 (makeUniversalTag 16 Constructed)
       (tbs.extensions <#> encodeExtensionAst # ASN1Sequence)
-    extContainerAst = ASN1 (ASN1Tag { tagClass: ContextSpecific, tagForm: Constructed, tagNumber: 3 })
-      (ASN1Sequence [ extSeqAst ])
+    extContainerAst = ASN1 (makeContextTag 3 Constructed)
+      (ASN1ContextExplicit 3 extSeqAst)
 
     elements =
       [ versionAst
@@ -92,11 +85,14 @@ encodeAlgorithmIdAst alg =
 -- | Encodes SubjectPublicKeyInfo into ASN.1.
 encodeSpkiAst :: SubjectPublicKeyInfo -> ASN1
 encodeSpkiAst spki =
-  let
-    algAst = encodeAlgorithmIdAst spki.algorithm
-    bitStringAst = ASN1 (makeUniversalTag 3 Primitive) (ASN1BitString 0 spki.subjectPublicKey)
-  in
-    ASN1 (makeUniversalTag 16 Constructed) (ASN1Sequence [ algAst, bitStringAst ])
+  case decodeDER spki.rawDer of
+    Just { element } -> element
+    Nothing ->
+      let
+        algAst = encodeAlgorithmIdAst spki.algorithm
+        bitStringAst = ASN1 (makeUniversalTag 3 Primitive) (ASN1BitString 0 spki.subjectPublicKey)
+      in
+        ASN1 (makeUniversalTag 16 Constructed) (ASN1Sequence [ algAst, bitStringAst ])
 
 -- | Encodes a complete Certificate into DER bytes.
 encodeCertificateDER :: Certificate -> Array Int
